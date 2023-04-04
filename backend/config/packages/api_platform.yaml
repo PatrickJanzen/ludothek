@@ -1,0 +1,19 @@
+# api/config/packages/api_platform.yaml
+api_platform:
+
+    # The title of the API.
+    title: 'Ludothek'
+
+    # The description of the API.
+    description: 'oecher-meeples'
+
+    # The version of the API.
+    version: '0.0.1'
+
+    # Set this to false if you want Webby to disappear.
+    show_webby: false
+    swagger:
+        api_keys:
+            apiKey:
+                name: Authorization
+                type: header
