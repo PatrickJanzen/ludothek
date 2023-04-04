@@ -1,4 +1,4 @@
-
+/.idea
 ###> symfony/framework-bundle ###
 /backend/.env.local
 /backend/.env.local.php
@@ -14,4 +14,4 @@
 /backend/.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
 
-/frontend
+/frontend/.node_modules
