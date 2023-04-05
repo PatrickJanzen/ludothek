@@ -12,7 +12,6 @@ use Faker\Factory;
 class GameFixture extends Fixture implements DependentFixtureInterface
 {
     private array $data = [
-
         [
             'title' => 'Abalone',
             'code' => '5023117565021',
@@ -104,30 +103,28 @@ class GameFixture extends Fixture implements DependentFixtureInterface
         ],
     ];
 
-
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
         $user = $this->getReference('masterUser');
-        foreach ($this->data as $k=>$g) {
+        foreach ($this->data as $k => $g) {
             $game = new Game();
             $game->setName($g['title']);
             $game->setCode($g['code']);
-            /** @var User $user */
+            /* @var User $user */
             $game->setOwner($user);
             $game->setInventoryNumber($k);
             $game->setPlayerMin(1);
             $game->setPlayerMax(6);
             $game->setDurationMinuntesMin($k * 2);
             $game->setValue(12.99);
-            $game->addPublisher($this->getReference('pub_' . random_int(1,10)));
+            $game->addPublisher($this->getReference('pub_'.random_int(1, 10)));
 
             $manager->persist($game);
         }
 
         $manager->flush();
     }
-
 
     public function getDependencies()
     {

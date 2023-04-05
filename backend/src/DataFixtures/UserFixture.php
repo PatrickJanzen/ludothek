@@ -32,15 +32,15 @@ class UserFixture extends Fixture
         $manager->flush();
     }
 
-    private function fakeMeeples(ObjectManager $manager)
+    private function fakeMeeples(ObjectManager $manager): void
     {
         $faker = Factory::create();
         $date = new CarbonImmutable();
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $meeple = new User();
             $meeple->setRoles(['ROLE_USER']);
             $meeple->setActive(true);
-            $meeple->setName($faker->firstName() . ' ' . $faker->lastName());
+            $meeple->setName($faker->firstName().' '.$faker->lastName());
             $meeple->setUsername($faker->userName());
             $meeple->setMemberSince($date);
             $meeple->setPassword($this->passwordHasher->hashPassword($meeple, 'password'));

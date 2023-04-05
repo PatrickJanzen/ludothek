@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\Game;
 use App\Entity\Publisher;
+use App\Entity\User;
 use App\Repository\GameRepository;
 use App\Repository\PublisherRepository;
 use App\Repository\UserRepository;
@@ -23,7 +24,6 @@ class GameImportCommand extends Command
 {
     /** @var Publisher[] */
     private array $publisherCache = [];
-
 
     public function __construct(private readonly PublisherRepository $publisherRepository, private readonly GameRepository $gameRepository, private readonly UserRepository $userRepository)
     {
@@ -56,45 +56,38 @@ class GameImportCommand extends Command
             11 => ' Wert',
         ];
         $row = 1;
-        $games = [];
-        if (($handle = fopen("games.csv", "r")) !== false) {
-            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+        if (($handle = fopen('games.csv', 'r')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 $io->write('.');
-                if ($row % 50 === 0) {
+                if (0 === $row % 50) {
                     $io->writeln('');
                 }
-                if ($row === 1) {
-                    $row++;
+                if (1 === $row) {
+                    ++$row;
                     continue;
                 }
-                $row++;
-                $games[] = ['title' => $data[2], 'code' => $data[8]];
-                //$this->addGame($data, $user, $io);
-                if ($row === 20 ) break;
+                ++$row;
+                $this->addGame($data, $user, $io);
             }
             fclose($handle);
             $io->writeln('');
-            $io->writeln($row . ' lines handled');
+            $io->writeln($row.' lines handled');
         }
-$io->writeln(var_export($games, true));
+
         return Command::SUCCESS;
     }
 
     /**
-     * @param bool|array            $data
-     * @param \App\Entity\User|null $user
-     * @param SymfonyStyle          $io
+     * @param string[] $data
      */
-    protected function addGame(bool|array $data, ?\App\Entity\User $user, SymfonyStyle $io): void
+    protected function addGame(array $data, ?User $user, SymfonyStyle $io): void
     {
         try {
-
-
-            if (strtolower($data[1]) === 'x') {
-                $game = $this->gameRepository->findOneBy(['inventoryNumber' => (int)$data[0]]);
-                if ($game === null) {
+            if ('x' === strtolower($data[1])) {
+                $game = $this->gameRepository->findOneBy(['inventoryNumber' => (int) $data[0]]);
+                if (null === $game) {
                     $game = new Game();
-                    $game->setInventoryNumber((int)$data[0]);
+                    $game->setInventoryNumber((int) $data[0]);
                 }
                 $game->setCode(substr($data[8], 0, 19));
                 $game->setName($data[2]);
@@ -104,25 +97,28 @@ $io->writeln(var_export($games, true));
                     $game->addPublisher($publisher);
                 }
                 if (is_numeric($data[5])) {
-                    $game->setPlayerMin((int)$data[5]);
+                    $game->setPlayerMin((int) $data[5]);
                 }
                 if (is_numeric($data[6])) {
-                    $game->setPlayerMax((int)$data[6]);
+                    $game->setPlayerMax((int) $data[6]);
                 }
                 if (is_numeric($data[7])) {
-                    $game->setDurationMinuntesMin((int)$data[7]);
+                    $game->setDurationMinuntesMin((int) $data[7]);
                 }
-                $game->setValue((float)(str_replace(',', '.', trim($data[11]))));
+                $game->setValue((float) str_replace(',', '.', trim($data[11])));
                 $this->gameRepository->save($game, true);
             }
         } catch (\Throwable $t) {
             $io->error([$t->getMessage(), $data[0], $data[2]]);
-            if ($t->getMessage() === 'The EntityManager is closed.') {
-                die('??');
+            if ('The EntityManager is closed.' === $t->getMessage()) {
+                exit('??');
             }
         }
     }
 
+    /**
+     * @return Publisher[]
+     */
     private function findPublisher(string $pub): array
     {
         $list = explode('/', $pub);
@@ -132,7 +128,7 @@ $io->writeln(var_export($games, true));
             $key = strtolower($item);
             if (!array_key_exists($key, $this->publisherCache)) {
                 $publisher = $this->publisherRepository->findOneBy(['name' => $item]);
-                if ($publisher === null) {
+                if (null === $publisher) {
                     $publisher = new Publisher();
                     $publisher->setName($item);
                     $this->publisherRepository->save($publisher, true);

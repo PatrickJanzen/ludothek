@@ -16,7 +16,7 @@ class Publisher
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\Column(type: 'uuid', unique: 'true')]
+    #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\CustomIdGenerator(class: UuidV7Generator::class)]
     private UuidInterface|string $id;
 
